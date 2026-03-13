@@ -1,14 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Fish GBT</title>
+<title>Fish GBT 🐟</title>
+<style>
+body{
+background:#0f172a;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+#chat{
+width:400px;
+margin:auto;
+margin-top:50px;
+}
+
+input{
+width:70%;
+padding:10px;
+}
+
+button{
+padding:10px;
+background:#22c55e;
+border:none;
+color:white;
+}
+
+#messages{
+margin-top:20px;
+text-align:left;
+}
+</style>
 </head>
 
-<body style="background:black;color:white;font-family:Arial;text-align:center;margin-top:100px;">
+<body>
 
 <h1>Fish GBT 🐟</h1>
-<p>Welcome to Fish GBT.</p>
-<p>Your AI website is starting!</p>
+<p>Your AI assistant</p>
+
+<div id="chat">
+
+<input id="input" placeholder="Ask Fish GBT..." />
+<button onclick="send()">Send</button>
+
+<div id="messages"></div>
+
+</div>
+
+<script>
+async function send(){
+const input=document.getElementById("input");
+const msg=input.value;
+
+const messages=document.getElementById("messages");
+messages.innerHTML+="<p><b>You:</b> "+msg+"</p>";
+
+const res=await fetch("/api/chat",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({message:msg})
+});
+
+const data=await res.json();
+
+messages.innerHTML+="<p><b>Fish GBT:</b> "+data.reply+"</p>";
+
+input.value="";
+}
+</script>
 
 </body>
 </html>

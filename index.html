@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <title>Fish GBT 🐟</title>
 
@@ -10,28 +11,17 @@ background:#0f172a;
 color:white;
 font-family:Arial;
 text-align:center;
+margin:0;
+}
+
+h1{
+margin-top:30px;
 }
 
 #chat{
 width:400px;
 margin:auto;
-margin-top:50px;
-}
-
-input{
-width:70%;
-padding:10px;
-border-radius:8px;
-border:none;
-}
-
-button{
-padding:10px;
-background:#22c55e;
-border:none;
-color:white;
-border-radius:8px;
-cursor:pointer;
+margin-top:30px;
 }
 
 #messages{
@@ -42,16 +32,16 @@ flex-direction:column;
 }
 
 .message{
-padding:10px;
-margin:10px 0;
+padding:12px;
+margin:8px 0;
 border-radius:10px;
 max-width:70%;
+word-wrap:break-word;
 }
 
 .user{
 background:#22c55e;
 margin-left:auto;
-color:white;
 }
 
 .ai{
@@ -59,8 +49,28 @@ background:#1e293b;
 margin-right:auto;
 }
 
-</style>
+input{
+width:70%;
+padding:10px;
+border-radius:8px;
+border:none;
+outline:none;
+}
 
+button{
+padding:10px 14px;
+background:#22c55e;
+border:none;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
+button:hover{
+background:#16a34a;
+}
+
+</style>
 </head>
 
 <body>
@@ -90,6 +100,8 @@ const messages=document.getElementById("messages");
 
 messages.innerHTML+=`<div class="message user">${msg}</div>`;
 
+messages.scrollTop=messages.scrollHeight;
+
 const res=await fetch("/api/chat",{
 method:"POST",
 headers:{
@@ -102,11 +114,19 @@ const data=await res.json();
 
 messages.innerHTML+=`<div class="message ai">${data.reply}</div>`;
 
-input.value="";
+messages.scrollTop=messages.scrollHeight;
 
+input.value="";
 }
+
+document.getElementById("input").addEventListener("keydown",function(event){
+if(event.key==="Enter"){
+send();
+}
+});
 
 </script>
 
 </body>
+
 </html>

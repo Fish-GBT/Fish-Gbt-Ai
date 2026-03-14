@@ -13,6 +13,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [
+          { role: "system", content: "You are Fish GBT, a friendly AI assistant on the Fish GBT website." },
           { role: "user", content: body.message }
         ]
       })

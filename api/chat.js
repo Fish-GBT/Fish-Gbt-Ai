@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "user", content: body.message }
         ]
@@ -20,7 +20,6 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // visa exakt fel om API:t klagar
     if (!response.ok) {
       return res.status(500).json({
         reply: JSON.stringify(data)

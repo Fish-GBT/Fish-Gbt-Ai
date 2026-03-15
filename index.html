@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,7 +6,6 @@
 <title>Fish GBT</title>
 
 <style>
-
 body{
 margin:0;
 font-family:Arial;
@@ -37,7 +37,8 @@ padding:10px;
 border-radius:6px;
 color:white;
 cursor:pointer;
-margin-bottom:20px;
+margin-bottom:10px;
+width:100%;
 }
 
 /* MAIN */
@@ -48,7 +49,7 @@ display:flex;
 flex-direction:column;
 }
 
-/* CHAT */
+/* CHAT AREA */
 
 #messages{
 flex:1;
@@ -56,7 +57,7 @@ overflow-y:auto;
 padding:20px;
 }
 
-/* BUBBLES */
+/* CHAT BUBBLES */
 
 .message{
 padding:12px;
@@ -101,18 +102,15 @@ color:white;
 border-radius:6px;
 cursor:pointer;
 }
-
 </style>
 </head>
 
 <body>
 
 <div id="sidebar">
-
 <div id="logo">Fish GBT</div>
 
 <button id="loginBtn">Login</button>
-
 <button onclick="newChat()">New Chat</button>
 
 </div>
@@ -130,7 +128,7 @@ cursor:pointer;
 
 <script>
 
-let conversation = []
+const messagesDiv = document.getElementById("messages")
 
 async function send(){
 
@@ -139,45 +137,40 @@ const msg=input.value.trim()
 
 if(!msg) return
 
-const messages=document.getElementById("messages")
-
-messages.innerHTML+=`<div class="message user">${msg}</div>`
-
-conversation.push({
-role:"user",
-content:msg
-})
+messagesDiv.innerHTML += `<div class="message user">${msg}</div>`
 
 input.value=""
 
-messages.scrollTop=messages.scrollHeight
+messagesDiv.scrollTop = messagesDiv.scrollHeight
 
-const res=await fetch("/api/chat",{
+try{
+
+const res = await fetch("/api/chat",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
-messages:conversation
+message: msg
 })
 })
 
-const data=await res.json()
+const data = await res.json()
 
-messages.innerHTML+=`<div class="message ai">${data.reply}</div>`
+messagesDiv.innerHTML += `<div class="message ai">${data.reply}</div>`
 
-conversation.push({
-role:"assistant",
-content:data.reply
-})
+messagesDiv.scrollTop = messagesDiv.scrollHeight
 
-messages.scrollTop=messages.scrollHeight
+}catch(e){
+
+messagesDiv.innerHTML += `<div class="message ai">AI error</div>`
+
+}
 
 }
 
 function newChat(){
-conversation=[]
-document.getElementById("messages").innerHTML=""
+messagesDiv.innerHTML=""
 }
 
 document.getElementById("input").addEventListener("keydown",function(e){
@@ -185,6 +178,10 @@ if(e.key==="Enter"){
 send()
 }
 })
+
+document.getElementById("loginBtn").onclick=function(){
+alert("Login system coming soon")
+}
 
 </script>
 

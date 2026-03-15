@@ -1,59 +1,102 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
 <title>Fish GBT 🐟</title>
 
-<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
-
 <style>
 
 body{
+margin:0;
+font-family:Arial;
 background:#0f172a;
 color:white;
-font-family:Arial;
-text-align:center;
-margin:0;
+display:flex;
+flex-direction:column;
+height:100vh;
 }
 
+/* TOP BAR */
+
 #topbar{
-display:flex;
-justify-content:space-between;
-padding:10px;
+background:#020617;
+padding:15px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+color:#38bdf8;
+border-bottom:1px solid #1e293b;
+}
+
+/* CHAT AREA */
+
+#messages{
+flex:1;
+overflow-y:auto;
+padding:20px;
+}
+
+/* CHAT BUBBLES */
+
+.message{
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
+max-width:70%;
+}
+
+.user{
+background:#0ea5e9;
+margin-left:auto;
+}
+
+.ai{
 background:#1e293b;
 }
 
-#chat{
-width:500px;
-margin:auto;
-margin-top:40px;
+/* INPUT */
+
+#inputArea{
+display:flex;
+padding:15px;
+border-top:1px solid #1e293b;
+background:#020617;
 }
 
-input{
-width:70%;
-padding:10px;
+#input{
+flex:1;
+padding:12px;
 border:none;
-border-radius:6px;
+border-radius:8px;
+background:#1e293b;
+color:white;
+font-size:16px;
 }
 
 button{
-padding:10px;
-background:#22c55e;
+margin-left:10px;
+padding:12px 18px;
 border:none;
+border-radius:8px;
+background:#22c55e;
 color:white;
-border-radius:6px;
+font-weight:bold;
 cursor:pointer;
 }
 
-#messages{
-margin-top:20px;
-text-align:left;
+/* FISH THINKING */
+
+#thinkingFish{
+display:none;
+font-size:40px;
+text-align:center;
+animation:swim 2s infinite linear;
 }
 
-.msg{
-background:#1e293b;
-padding:10px;
-margin-bottom:10px;
-border-radius:6px;
+@keyframes swim{
+0%{transform:translateX(-40px);}
+50%{transform:translateX(40px);}
+100%{transform:translateX(-40px);}
 }
 
 </style>
@@ -61,69 +104,18 @@ border-radius:6px;
 
 <body>
 
-<div id="topbar">
-
-<div>🐟 Fish GBT</div>
-
-<div>
-<button onclick="login()">Login</button>
-<button onclick="logout()">Logout</button>
-</div>
-
-</div>
-
-<div id="chat">
-
-<h2>Your AI assistant</h2>
-
-<input id="input" placeholder="Ask Fish GBT..." />
-<button onclick="send()">Send</button>
+<div id="topbar">🐟 Fish GBT</div>
 
 <div id="messages"></div>
 
+<div id="thinkingFish">🐟</div>
+
+<div id="inputArea">
+<input id="input" placeholder="Ask Fish GBT..." />
+<button onclick="send()">Send</button>
 </div>
 
 <script>
-
-let auth0 = null
-
-async function initAuth(){
-
-auth0 = await createAuth0Client({
-domain: "dev-hnpofj5u3w166j0p.eu.auth0.com",
-client_id: "koTrNQIFMarJorJONfLyApdYKsKvZzsp",
-authorizationParams:{
-redirect_uri: window.location.origin
-}
-})
-
-if(window.location.search.includes("code=")){
-await auth0.handleRedirectCallback()
-window.history.replaceState({},document.title,"/")
-}
-
-const isLogged = await auth0.isAuthenticated()
-
-if(isLogged){
-const user = await auth0.getUser()
-console.log("Logged in:",user)
-}
-
-}
-
-async function login(){
-await auth0.loginWithRedirect()
-}
-
-async function logout(){
-auth0.logout({
-logoutParams:{
-returnTo: window.location.origin
-}
-})
-}
-
-initAuth()
 
 async function send(){
 
@@ -134,7 +126,25 @@ if(msg.trim()=="") return
 
 const messages=document.getElementById("messages")
 
-messages.innerHTML+=`<div class="msg"><b>You:</b> ${msg}</div>`
+messages.innerHTML+=`<div class="message user">${msg}</div>`
+
+messages.scrollTop=messages.scrollHeight
+
+/* special creator answer */
+
+if(msg.toLowerCase().includes("who created you") ||
+msg.toLowerCase().includes("who made you") ||
+msg.toLowerCase().includes("vem skapade dig")){
+
+messages.innerHTML+=`<div class="message ai">I was created by DD2_JR 🐟</div>`
+messages.scrollTop=messages.scrollHeight
+input.value=""
+return
+}
+
+/* show fish loader */
+
+document.getElementById("thinkingFish").style.display="block"
 
 const res=await fetch("/api/chat",{
 method:"POST",
@@ -146,11 +156,17 @@ body:JSON.stringify({message:msg})
 
 const data=await res.json()
 
-messages.innerHTML+=`<div class="msg"><b>Fish GBT:</b> ${data.reply}</div>`
+document.getElementById("thinkingFish").style.display="none"
+
+messages.innerHTML+=`<div class="message ai">${data.reply}</div>`
+
+messages.scrollTop=messages.scrollHeight
 
 input.value=""
 
 }
+
+/* ENTER SEND */
 
 document.getElementById("input").addEventListener("keydown",function(e){
 if(e.key==="Enter"){
@@ -162,3 +178,4 @@ send()
 
 </body>
 </html>
+```

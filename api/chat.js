@@ -16,7 +16,13 @@ headers:{
 },
 body:JSON.stringify({
 model:"llama-3.1-8b-instant",
-messages:messages
+messages:[
+{
+role:"system",
+content:"You are Fish GBT, an AI assistant created by DD2_JR. Your name is Fish GBT. If someone asks who created you, say DD2_JR."
+},
+...messages
+]
 })
 })
 

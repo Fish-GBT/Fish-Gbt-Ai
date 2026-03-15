@@ -14,8 +14,6 @@ display:flex;
 height:100vh;
 }
 
-/* SIDEBAR */
-
 #sidebar{
 width:220px;
 background:#020617;
@@ -40,23 +38,17 @@ margin-bottom:10px;
 width:100%;
 }
 
-/* MAIN */
-
 #main{
 flex:1;
 display:flex;
 flex-direction:column;
 }
 
-/* CHAT AREA */
-
 #messages{
 flex:1;
 overflow-y:auto;
 padding:20px;
 }
-
-/* CHAT BUBBLES */
 
 .message{
 padding:12px;
@@ -73,8 +65,6 @@ margin-left:auto;
 .ai{
 background:#1e293b;
 }
-
-/* INPUT */
 
 #inputArea{
 display:flex;
@@ -108,10 +98,8 @@ cursor:pointer;
 
 <div id="sidebar">
 <div id="logo">Fish GBT</div>
-
 <button id="loginBtn">Login</button>
 <button onclick="newChat()">New Chat</button>
-
 </div>
 
 <div id="main">
@@ -127,6 +115,8 @@ cursor:pointer;
 
 <script>
 
+let conversation = []
+
 const messagesDiv = document.getElementById("messages")
 
 async function send(){
@@ -137,6 +127,11 @@ const msg=input.value.trim()
 if(!msg) return
 
 messagesDiv.innerHTML += `<div class="message user">${msg}</div>`
+
+conversation.push({
+role:"user",
+content:msg
+})
 
 input.value=""
 
@@ -150,13 +145,18 @@ headers:{
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
-message: msg
+messages: conversation
 })
 })
 
 const data = await res.json()
 
 messagesDiv.innerHTML += `<div class="message ai">${data.reply}</div>`
+
+conversation.push({
+role:"assistant",
+content:data.reply
+})
 
 messagesDiv.scrollTop = messagesDiv.scrollHeight
 
@@ -169,6 +169,7 @@ messagesDiv.innerHTML += `<div class="message ai">AI error</div>`
 }
 
 function newChat(){
+conversation=[]
 messagesDiv.innerHTML=""
 }
 

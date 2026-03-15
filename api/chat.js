@@ -1,42 +1,42 @@
 export default async function handler(req, res) {
 
-  try {
+if (req.method !== "POST") {
+return res.status(405).json({ error: "Method not allowed" });
+}
 
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+try {
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: [
-          { role: "system", content: "You are Fish GBT, a friendly AI assistant on the Fish GBT website." },
-          { role: "user", content: body.message }
-        ]
-      })
-    });
+const { messages } = req.body;
 
-    const data = await response.json();
+const response = await fetch(
+"https://api.groq.com/openai/v1/chat/completions",
+{
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+Authorization: `Bearer ${process.env.GROQ_API_KEY}`
+},
+body: JSON.stringify({
+model: "llama-3.1-8b-instant",
+messages: messages
+})
+}
+);
 
-    if (!response.ok) {
-      return res.status(500).json({
-        reply: JSON.stringify(data)
-      });
-    }
+const data = await response.json();
 
-    const reply = data.choices?.[0]?.message?.content || "No reply from AI.";
+const reply = data.choices[0].message.content;
 
-    res.status(200).json({ reply });
+res.status(200).json({ reply });
 
-  } catch (error) {
+} catch (error) {
 
-    res.status(500).json({
-      reply: "Server error: " + error.message
-    });
+console.error(error);
 
-  }
+res.status(500).json({
+reply: "Something went wrong with the AI."
+});
+
+}
 
 }

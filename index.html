@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,6 +6,7 @@
 <title>Fish GBT</title>
 
 <style>
+
 body{
 margin:0;
 font-family:Arial;
@@ -91,15 +93,19 @@ color:white;
 border-radius:6px;
 cursor:pointer;
 }
+
 </style>
 </head>
 
 <body>
 
 <div id="sidebar">
+
 <div id="logo">Fish GBT</div>
+
 <button id="loginBtn">Login</button>
 <button onclick="newChat()">New Chat</button>
+
 </div>
 
 <div id="main">
@@ -137,6 +143,14 @@ input.value=""
 
 messagesDiv.scrollTop = messagesDiv.scrollHeight
 
+const thinking = document.createElement("div")
+thinking.className="message ai"
+thinking.id="thinking"
+thinking.innerText="Fish GBT is thinking..."
+messagesDiv.appendChild(thinking)
+
+messagesDiv.scrollTop = messagesDiv.scrollHeight
+
 try{
 
 const res = await fetch("/api/chat",{
@@ -151,6 +165,8 @@ messages: conversation
 
 const data = await res.json()
 
+document.getElementById("thinking").remove()
+
 messagesDiv.innerHTML += `<div class="message ai">${data.reply}</div>`
 
 conversation.push({
@@ -161,6 +177,8 @@ content:data.reply
 messagesDiv.scrollTop = messagesDiv.scrollHeight
 
 }catch(e){
+
+document.getElementById("thinking").remove()
 
 messagesDiv.innerHTML += `<div class="message ai">AI error</div>`
 

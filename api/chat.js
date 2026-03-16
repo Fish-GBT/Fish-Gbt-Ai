@@ -1,9 +1,5 @@
 export default async function handler(req, res) {
 
-if (req.method !== "POST") {
-return res.status(405).json({ reply: "Method not allowed" })
-}
-
 try{
 
 const { messages } = req.body
@@ -16,29 +12,23 @@ headers:{
 },
 body:JSON.stringify({
 model:"llama-3.1-8b-instant",
-messages:[
-{
-role:"system",
-content:"You are Fish GBT, an AI assistant created by DD2_JR. Your name is Fish GBT. If someone asks who created you, say DD2_JR."
-},
-...(messages || [])
-]
+messages:messages
 })
 })
 
 const data = await response.json()
 
-console.log(data)
+res.status(200).json({
+reply:data.choices[0].message.content
+})
 
-const reply = data?.choices?.[0]?.message?.content || "No response"
+}catch(e){
 
-res.status(200).json({ reply })
+console.log(e)
 
-}catch(error){
-
-console.error(error)
-
-res.status(500).json({ reply:"AI error" })
+res.status(500).json({
+reply:"AI error"
+})
 
 }
 

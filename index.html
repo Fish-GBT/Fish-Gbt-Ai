@@ -5,200 +5,176 @@
 <title>Fish GBT</title>
 
 <style>
-
 body{
-margin:0;
-font-family:Arial;
-background:#0f172a;
-color:white;
-display:flex;
-height:100vh;
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+  display:flex;
+  height:100vh;
 }
 
 #sidebar{
-width:220px;
-background:#020617;
-padding:20px;
-border-right:1px solid #1e293b;
+  width:220px;
+  background:#020617;
+  padding:20px;
+  border-right:1px solid #1e293b;
 }
 
-#logo{
-font-size:20px;
-font-weight:bold;
-margin-bottom:20px;
-}
-
-#loginBtn{
-background:#22c55e;
-border:none;
-padding:10px;
-border-radius:6px;
-color:white;
-cursor:pointer;
-margin-bottom:10px;
-width:100%;
+#title{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:20px;
 }
 
 #main{
-flex:1;
-display:flex;
-flex-direction:column;
+  flex:1;
+  display:flex;
+  flex-direction:column;
 }
 
 #messages{
-flex:1;
-overflow-y:auto;
-padding:20px;
+  flex:1;
+  overflow-y:auto;
+  padding:20px;
 }
 
 .message{
-padding:12px;
-border-radius:10px;
-margin-bottom:10px;
-max-width:60%;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+  max-width:65%;
 }
 
 .user{
-background:#2563eb;
-margin-left:auto;
+  background:#2563eb;
+  margin-left:auto;
 }
 
 .ai{
-background:#1e293b;
+  background:#1e293b;
 }
 
-#inputArea{
-display:flex;
-padding:10px;
-background:#020617;
-border-top:1px solid #1e293b;
+#inputBar{
+  display:flex;
+  padding:10px;
+  background:#020617;
+  border-top:1px solid #1e293b;
 }
 
 #input{
-flex:1;
-padding:12px;
-border:none;
-border-radius:6px;
-background:#1e293b;
-color:white;
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:6px;
+  background:#1e293b;
+  color:white;
 }
 
 button{
-margin-left:10px;
-padding:10px;
-border:none;
-background:#22c55e;
-color:white;
-border-radius:6px;
-cursor:pointer;
+  margin-left:10px;
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  background:#22c55e;
+  color:white;
+  cursor:pointer;
 }
-
 </style>
 </head>
 
 <body>
 
 <div id="sidebar">
-
-<div id="logo">Fish GBT</div>
-
-<button id="loginBtn">Login</button>
-<button onclick="newChat()">New Chat</button>
-
+  <div id="title">Fish GBT</div>
+  <button onclick="newChat()">New Chat</button>
 </div>
 
 <div id="main">
 
-<div id="messages"></div>
+  <div id="messages"></div>
 
-<div id="inputArea">
-<input id="input" placeholder="Send a message">
-<button onclick="send()">Send</button>
-</div>
+  <div id="inputBar">
+    <input id="input" placeholder="Ask Fish GBT...">
+    <button onclick="send()">Send</button>
+  </div>
 
 </div>
 
 <script>
 
 let conversation = []
-
-const messagesDiv = document.getElementById("messages")
+const messages = document.getElementById("messages")
 
 async function send(){
 
-const input=document.getElementById("input")
-const msg=input.value.trim()
+  const input = document.getElementById("input")
+  const text = input.value.trim()
 
-if(!msg) return
+  if(!text) return
 
-messagesDiv.innerHTML += `<div class="message user">${msg}</div>`
+  messages.innerHTML += `<div class="message user">${text}</div>`
 
-conversation.push({
-role:"user",
-content:msg
-})
+  conversation.push({
+    role:"user",
+    content:text
+  })
 
-input.value=""
+  input.value=""
 
-messagesDiv.scrollTop = messagesDiv.scrollHeight
+  const thinking = document.createElement("div")
+  thinking.className="message ai"
+  thinking.id="thinking"
+  thinking.innerText="Fish GBT is thinking..."
+  messages.appendChild(thinking)
 
-const thinking = document.createElement("div")
-thinking.className="message ai"
-thinking.id="thinking"
-thinking.innerText="Fish GBT is thinking..."
-messagesDiv.appendChild(thinking)
+  messages.scrollTop = messages.scrollHeight
 
-messagesDiv.scrollTop = messagesDiv.scrollHeight
+  try{
 
-try{
+    const res = await fetch("/api/chat",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        messages:conversation
+      })
+    })
 
-const res = await fetch("/api/chat",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-messages: conversation
-})
-})
+    const data = await res.json()
 
-const data = await res.json()
+    document.getElementById("thinking").remove()
 
-document.getElementById("thinking").remove()
+    messages.innerHTML += `<div class="message ai">${data.reply}</div>`
 
-messagesDiv.innerHTML += `<div class="message ai">${data.reply}</div>`
+    conversation.push({
+      role:"assistant",
+      content:data.reply
+    })
 
-conversation.push({
-role:"assistant",
-content:data.reply
-})
+    messages.scrollTop = messages.scrollHeight
 
-messagesDiv.scrollTop = messagesDiv.scrollHeight
+  }catch(err){
 
-}catch(e){
+    document.getElementById("thinking").remove()
 
-document.getElementById("thinking").remove()
+    messages.innerHTML += `<div class="message ai">AI error</div>`
 
-messagesDiv.innerHTML += `<div class="message ai">AI error</div>`
-
-}
+  }
 
 }
 
 function newChat(){
-conversation=[]
-messagesDiv.innerHTML=""
+  conversation=[]
+  messages.innerHTML=""
 }
 
 document.getElementById("input").addEventListener("keydown",function(e){
-if(e.key==="Enter"){
-send()
-}
+  if(e.key==="Enter"){
+    send()
+  }
 })
-
-document.getElementById("loginBtn").onclick=function(){
-alert("Login system coming soon")
-}
 
 </script>
 

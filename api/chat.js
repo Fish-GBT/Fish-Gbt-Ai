@@ -19,7 +19,7 @@ model:"llama-3.1-8b-instant",
 messages:[
 {
 role:"system",
-content:"You are Fish GBT created by DD2_JR. Your name is Fish GBT."
+content:"You are Fish GBT, an AI assistant created by DD2_JR. Your name is Fish GBT. If someone asks who created you, say DD2_JR."
 },
 ...(messages || [])
 ]
@@ -30,17 +30,13 @@ const data = await response.json()
 
 console.log(data)
 
-if(!data.choices){
-return res.status(200).json({ reply:"AI error" })
-}
-
-const reply = data.choices[0].message.content
+const reply = data?.choices?.[0]?.message?.content || "No response"
 
 res.status(200).json({ reply })
 
 }catch(error){
 
-console.log(error)
+console.error(error)
 
 res.status(500).json({ reply:"AI error" })
 
